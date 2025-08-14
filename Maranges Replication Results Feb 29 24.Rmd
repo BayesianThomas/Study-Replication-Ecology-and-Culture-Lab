@@ -1,0 +1,443 @@
+---
+title: "Unpredictability and Morality Maranges Replication"
+author: "Wormley et al."
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+    code_download: true
+  word_document:
+    toc: true
+  pdf_document:
+    toc: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(psych)
+
+## Read in Data
+master.df <- read.csv("data.csv") 
+Excluded.df <- master.df[master.df$EXCLUDE == FALSE, ]
+```
+
+## Build Composites
+
+```{r}
+#General note, it appears some measures were automatically reversed for reverse coded items
+#from Qualtrics and others not, which why some are reversed here (Empathic Concern) and
+#others not (BDW) even though they both contain reverse coded items.
+
+### CHILDHOOD UNPREDICTABILITY ###
+psych::alpha(Excluded.df[, c("CU1", "CU2", "CU3", "CU4", 
+														 "CU5", "CU6", "CU7", "CU8")])
+Excluded.df$CU_Overall <-
+	rowMeans(Excluded.df[, c("CU1", "CU2", "CU3", "CU4", 
+													 "CU5", "CU6", "CU7", "CU8")])
+### CHILDHOOD HARSHNESS ####
+### CH4 (SES) was already reverse coded in Qualtrics
+ColtoGrab <- c("CH1R", "CH2R", "CH3R", "CH4")
+Excluded.df$CH1R <- 8 - Excluded.df[, "CH1"]
+Excluded.df$CH2R <- 8 - Excluded.df[, "CH2"]
+Excluded.df$CH3R <- 8 - Excluded.df[, "CH3"]
+psych::alpha(Excluded.df[, ColtoGrab])
+Excluded.df$CH_Overall <- rowMeans(scale(Excluded.df[, ColtoGrab]))
+
+### D AND U PARAMETERS ###
+CongruentColumns <- c("CongruentTime",
+											"CarCongruent",
+											"HardTimesCongruent",
+											"BabyCongruent",
+											"RelationshipCongru",
+											"AbortCongruent",
+											"TortureCongruent",
+											"VaccineCongruent",
+											"AnimalCongruent",
+											"BorderCongruent")
+InCongruentColumns <- c("IncongruentTime",
+												"CarIncongruent",
+												"HardTimesIncongruent",
+												"BabyIncongruent",
+												"RelationshipIncongru",
+												"AbortIncongruent",
+												"TortureIncongruent",
+												"VaccineIncongruent",
+												"AnimalIncongruent",
+												"BorderIncongruent")
+## % No Harm in Congruent
+Excluded.df$No_Harm_In_Congr <- rowSums(Excluded.df[,CongruentColumns] == "2")/10
+describe(Excluded.df$No_Harm_In_Congr)
+## % No Harm in Incongruent
+Excluded.df$No_Harm_In_InCongr <- rowSums(Excluded.df[,InCongruentColumns] == "2")/10
+describe(Excluded.df$No_Harm_In_InCongr)
+## U Parameter
+Excluded.df$U_Param <- Excluded.df$No_Harm_In_Congr - Excluded.df$No_Harm_In_InCongr
+describe(Excluded.df$U_Param)
+## D Parameter
+Excluded.df$D_Param <- Excluded.df$No_Harm_In_InCongr/(1 - Excluded.df$U_Param)
+describe(Excluded.df$D_Param)
+
+### EMPATHIC CONCERN ###
+Excluded.df$EmpathicConcern_2r <- 8 - Excluded.df$EmpathicConcern_2
+Excluded.df$EmpathicConcern_5r <- 8 - Excluded.df$EmpathicConcern_5
+Excluded.df$EmpathicConcern_6r <- 8 - Excluded.df$EmpathicConcern_6
+
+psych::alpha(Excluded.df[, c(
+	"EmpathicConcern_1",
+	"EmpathicConcern_2r",
+	"EmpathicConcern_3",
+	"EmpathicConcern_4",
+	"EmpathicConcern_5r",
+	"EmpathicConcern_6r",
+	"EmpathicConcern_7"
+)])
+Excluded.df$EmpathicConcern_Overall <-
+	rowMeans(Excluded.df[, c(
+		"EmpathicConcern_1",
+		"EmpathicConcern_2r",
+		"EmpathicConcern_3",
+		"EmpathicConcern_4",
+		"EmpathicConcern_5r",
+		"EmpathicConcern_6r",
+		"EmpathicConcern_7"
+	)])
+### TRUST ###
+psych::alpha(Excluded.df[, c("Trust_1",
+														 "Trust_2",
+														 "Trust_3",
+														 "Trust_4",
+														 "Trust_5",
+														 "Trust_6")])
+Excluded.df$Trust_Overall <-
+	rowMeans(Excluded.df[, c("Trust_1",
+													 "Trust_2",
+													 "Trust_3",
+													 "Trust_4",
+													 "Trust_5",
+													 "Trust_6")])
+### BDW ###
+psych::alpha(Excluded.df[, c(
+	"BDW1",
+	"BDW2",
+	"BDW3",
+	"BDW4",
+	"BDW5",
+	"BDW6",
+	"BDW7",
+	"BDW8",
+	"BDW9",
+	"BDW10",
+	"BDW11",
+	"BDW12"
+)])
+Excluded.df$BDW_Overall <-
+	rowMeans(Excluded.df[, c(
+		"BDW1",
+		"BDW2",
+		"BDW3",
+		"BDW4",
+		"BDW5",
+		"BDW6",
+		"BDW7",
+		"BDW8",
+		"BDW9",
+		"BDW10",
+		"BDW11",
+		"BDW12"
+	)])
+### RELATIONSHIP TRUST ###
+Excluded.df$NRI_2r <- 8 - Excluded.df$NRI_2
+Excluded.df$NRI_3r <- 8 - Excluded.df$NRI_3
+Excluded.df$NRI_4r <- 8 - Excluded.df$NRI_4
+Excluded.df$NRI_6r <- 8 - Excluded.df$NRI_6
+Excluded.df$NRI_7r <- 8 - Excluded.df$NRI_7
+Excluded.df$NRI_8r <- 8 - Excluded.df$NRI_8
+Excluded.df$NRI_15r <- 8 - Excluded.df$NRI_15
+psych::alpha(Excluded.df[, c(
+	"NRI_1",
+	"NRI_2r",
+	"NRI_3r",
+	"NRI_4r",
+	"NRI_5",
+	"NRI_6r",
+	"NRI_7r",
+	"NRI_8r",
+	"NRI_9",
+	"NRI_10",
+	"NRI_11",
+	"NRI_12",
+	"NRI_13",
+	"NRI_14",
+	"NRI_15r"
+)])
+Excluded.df$NRI_Overall <-
+	rowMeans(Excluded.df[, c(
+		"NRI_1",
+		"NRI_2r",
+		"NRI_3r",
+		"NRI_4r",
+		"NRI_5",
+		"NRI_6r",
+		"NRI_7r",
+		"NRI_8r",
+		"NRI_9",
+		"NRI_10",
+		"NRI_11",
+		"NRI_12",
+		"NRI_13",
+		"NRI_14",
+		"NRI_15r"
+	)])
+```
+
+## Descriptive Statistics
+
+```{r}
+table(Excluded.df$Gender)
+psych::describe(Excluded.df$Age)
+
+psych::describe(Excluded.df$U_Param)
+psych::describe(Excluded.df$D_Param)
+psych::describe(Excluded.df$CU_Overall)
+psych::describe(Excluded.df$CH_Overall)
+psych::describe(Excluded.df$EmpathicConcern_Overall)
+psych::describe(Excluded.df$Trust_Overall)
+psych::describe(Excluded.df$BDW_Overall)
+psych::describe(Excluded.df$NRI_Overall)
+```
+
+## Correlations
+
+```{r}
+## Childhood Unpredictability
+# U Parameter
+cor.test(x = Excluded.df$CU_Overall, 
+				 y = Excluded.df$U_Param, 
+				 method="pearson",
+				 na.action=na.omit)
+# D Parameter
+cor.test(x = Excluded.df$CU_Overall, 
+				 y = Excluded.df$D_Param, 
+				 method="pearson",
+				 na.action=na.omit)
+# Empathic Concern
+cor.test(x = Excluded.df$CU_Overall, 
+				 y = Excluded.df$EmpathicConcern_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+# General Trust
+cor.test(x = Excluded.df$CU_Overall, 
+				 y = Excluded.df$Trust_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+# BDW
+cor.test(x = Excluded.df$CU_Overall, 
+				 y = Excluded.df$BDW_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+# NRI
+cor.test(x = Excluded.df$CU_Overall, 
+				 y = Excluded.df$NRI_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+## Childhood Harshness
+# U Parameter
+cor.test(x = Excluded.df$CH_Overall, 
+				 y = Excluded.df$U_Param, 
+				 method="pearson",
+				 na.action=na.omit)
+# D Parameter
+cor.test(x = Excluded.df$CH_Overall, 
+				 y = Excluded.df$D_Param, 
+				 method="pearson",
+				 na.action=na.omit)
+# Empathic Concern
+cor.test(x = Excluded.df$CH_Overall, 
+				 y = Excluded.df$EmpathicConcern_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+# General Trust
+cor.test(x = Excluded.df$CH_Overall, 
+				 y = Excluded.df$Trust_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+# BDW
+cor.test(x = Excluded.df$CH_Overall, 
+				 y = Excluded.df$BDW_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+# NRI
+cor.test(x = Excluded.df$CH_Overall, 
+				 y = Excluded.df$NRI_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+## Deontological 
+# Empathic Concern
+cor.test(x = Excluded.df$D_Param, 
+				 y = Excluded.df$EmpathicConcern_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+# General Trust
+cor.test(x = Excluded.df$D_Param, 
+				 y = Excluded.df$Trust_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+# BDW
+cor.test(x = Excluded.df$D_Param, 
+				 y = Excluded.df$BDW_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+# NRI
+cor.test(x = Excluded.df$D_Param, 
+				 y = Excluded.df$NRI_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+## Utilitarianism 
+# Empathic Concern
+cor.test(x = Excluded.df$U_Param, 
+				 y = Excluded.df$EmpathicConcern_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+# General Trust
+cor.test(x = Excluded.df$U_Param, 
+				 y = Excluded.df$Trust_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+# BDW
+cor.test(x = Excluded.df$U_Param, 
+				 y = Excluded.df$BDW_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+# NRI
+cor.test(x = Excluded.df$U_Param, 
+				 y = Excluded.df$NRI_Overall, 
+				 method="pearson",
+				 na.action=na.omit)
+
+```
+
+## Additional Tests for Table 2
+
+```{r}
+cor.test(Excluded.df$EmpathicConcern_Overall,
+				 Excluded.df$D_Param)
+cor.test(Excluded.df$NRI_Overall,
+				 Excluded.df$D_Param)
+cor.test(Excluded.df$NRI_Overall,
+				 Excluded.df$U_Param)
+```
+
+## Comparison of Means of Unpredictability
+
+```{r}
+# Maranges et al. Childhood Unpredictability Study 2 
+MU2_M <- 3.01
+MU2_SD <- 1.84
+M2_N <- 261
+
+# Maranges et al. Childhood Unpredictability Study 4 
+MU4_M <- 3.31
+MU4_SD <- 1.76
+M4_N <- 250
+
+# Wormley et al. Childhood Unpredictability
+CU_descriptives <- describe(Excluded.df$CU_Overall)
+WU_M <- CU_descriptives$mean
+WU_SD <- CU_descriptives$sd
+WU_N <- CU_descriptives$n
+
+## Reading in data from Maranges et al. (2021). Please access data via their OSF page.
+data2 <- read.csv("data.csv")
+t.test(data2[data2$filter_. == 1,]$unpred,
+			 Excluded.df$CU_Overall)
+data4 <- read.csv("data.csv")
+t.test(data4[data4$filter_. == 1,]$unpred,
+			 Excluded.df$CU_Overall)
+
+### Visualizing the distribution
+library(ggplot2)
+ggplot() +
+	scale_y_continuous(name = "Density") +
+	scale_fill_manual(name ="Sample ", 
+										values = c("M4" = "maroon", "M2" = "gold", "W" = "lightgreen"), 
+										labels = c("M4" = "Maranges et al. (2021; Study 4)", 
+														 "M2" = "Maranges et al. (2021; Study 2)", 
+														 "W" = "Wormley et al.")) +
+	scale_x_continuous(name = "Childhood Unpredictability") +
+	theme_light() +
+	geom_vline(xintercept = mean(Excluded.df$CU_Overall, na.rm = T), 
+						 linetype="solid", 
+                color = "lightgreen", 
+						 size=1.5)+
+	geom_vline(xintercept = mean(data2[data2$filter_. == 1,]$unpred, 
+															 na.rm = T), 
+						 linetype="solid", 
+                color = "gold", size=1.5) +
+	geom_vline(xintercept = mean(data4[data4$filter_. == 1,]$unpred, 
+															 na.rm = T), 
+						 linetype="solid", 
+                color = "maroon", size=1.5) +
+  geom_density(data = data4[data4$filter_. == 1,], 
+  						 aes(x = unpred, fill = "M4"), 
+  						 alpha = 0.3) +
+	geom_density(data = data2[data2$filter_. == 1,], 
+  						 aes(x = unpred, fill = "M2"), 
+  						 alpha = 0.3) +
+  geom_density(data = Excluded.df, 
+  						 aes(x = CU_Overall, fill = "W"), 
+  						 alpha = 0.3) 
+```
+
+## Supplemental Mediations
+
+```{r eval=FALSE, include=FALSE}
+### You must run the process macro first
+### This will not run when compiled
+
+mediationcols <- c("CU_Overall", "EmpathicConcern_Overall", "Trust_Overall",
+									 "BDW_Overall", "NRI_Overall", "D_Param")
+dfmatrix <- Excluded.df[, mediationcols]
+dfmatrix <- scale(dfmatrix)
+dfmatrix <- dfmatrix[complete.cases(dfmatrix),]
+
+process(as.data.frame(dfmatrix), 
+				y = "D_Param", 
+				x = "CU_Overall", 
+				m = c("EmpathicConcern_Overall", "Trust_Overall",
+						 "BDW_Overall", "NRI_Overall"), 
+				model = 4,
+				seed = 99407)
+
+mediationcols <- c("CU_Overall", "EmpathicConcern_Overall", "Trust_Overall",
+									 "BDW_Overall", "NRI_Overall", "U_Param")
+dfmatrix <- Excluded.df[, mediationcols]
+dfmatrix <- scale(dfmatrix)
+dfmatrix <- dfmatrix[complete.cases(dfmatrix),]
+
+process(as.data.frame(dfmatrix), 
+				y = "U_Param", 
+				x = "CU_Overall", 
+				m = c("EmpathicConcern_Overall", "Trust_Overall",
+						 "BDW_Overall", "NRI_Overall"), 
+				model = 4,
+				seed = 99407)
+```
+
+## Supplemental Control Analyses
+
+```{r}
+U_Model_Control <- lm(U_Param ~ CU_Overall + CH_Overall + Income_Curr + Age + Gender + D_Param,
+											data = Excluded.df[Excluded.df$Gender == "Male"|Excluded.df$Gender == "Female",])
+jtools::summ(U_Model_Control)
+lm.beta::lm.beta(U_Model_Control)
+
+D_Model_Control <- lm(D_Param ~ CU_Overall + CH_Overall + Income_Curr + Age + Gender + U_Param,
+											data = Excluded.df[Excluded.df$Gender == "Male"|Excluded.df$Gender == "Female",])
+jtools::summ(D_Model_Control)
+lm.beta::lm.beta(D_Model_Control)
+```
+
