@@ -4,4 +4,4 @@ This repository contains analysis code and materials for our replication of Mara
 
 We tested this model in a large university sample. Contrary to the original findings, we found no main effect of childhood unpredictability on moral reasoning outcomes. These results motivate a broader replication across six cross-cultural samples to further evaluate links between behavioral ecology and moral judgment.
 
-Project page: OSF – Childhood Unpredictability and Moral Reasoning
+Project page: OSF – https://osf.io/ye7up/
